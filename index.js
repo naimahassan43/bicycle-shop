@@ -18,7 +18,18 @@ const server = http.createServer(async (req, res) => {
   // Routes
   // Home page
   if (pathname === "/") {
-    const html = await fs.readFile("./views/bicycles.html", "utf-8");
+    let html = await fs.readFile("./views/bicycles.html", "utf-8");
+    const eachBicycle = await fs.readFile(
+      "./views/partials/bicycle.html",
+      "utf-8"
+    );
+
+    let allBicycles = "";
+    for (let index = 0; index < 6; index++) {
+      allBicycles += eachBicycle;
+    }
+    html = html.replace(/<%ALLBICYCLES%>/g, allBicycles);
+
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(html);
   }
@@ -47,15 +58,22 @@ const server = http.createServer(async (req, res) => {
     const image = await fs.readFile(`./public/images/${req.url.slice(1)}`);
     res.writeHead(200, { "Content-Type": "image/png" });
     res.end(image);
-  } else if (/\.(css)$/i.test(req.url)) {
+  }
+  //CSS
+  else if (/\.(css)$/i.test(req.url)) {
     const css = await fs.readFile(`./public/css/index.css`);
     res.writeHead(200, { "Content-Type": "text/css" });
     res.end(css);
-  } else if (/\.(svg)$/i.test(req.url)) {
+  }
+  // SVG
+  else if (/\.(svg)$/i.test(req.url)) {
     const svg = await fs.readFile(`./public/images/icons.svg`);
     res.writeHead(200, { "Content-Type": "image/svg+xml" });
     res.end(svg);
-  } else {
+  }
+
+  // INVALID
+  else {
     res.writeHead(404, { "Content-Type": "text/html" });
     res.end("<div><h1>File Not Found</h1></div>");
   }
